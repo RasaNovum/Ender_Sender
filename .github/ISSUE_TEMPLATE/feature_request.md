@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for the Timber Frames mod
+about: Suggest an idea for the Ender Siphon (Working Name)
 title: ''
 labels: enhancement
 assignees: ''
