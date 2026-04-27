@@ -9,3 +9,4 @@ build/
 /.idea
 .env
 /documentation
+.DS_Store
