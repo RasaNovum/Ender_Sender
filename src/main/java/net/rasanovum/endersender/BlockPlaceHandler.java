@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.rasanovum.endersender.block.entity.EnderSenderBlockEntity;
 
 public class BlockPlaceHandler {
@@ -30,31 +31,34 @@ public class BlockPlaceHandler {
                     playerPos.offset(radius, radius, radius))) {
 
                 if (world.getBlockEntity(checkPos) instanceof EnderSenderBlockEntity sender) {
-                    for (int i = 0; i < sender.getContainerSize(); i++) {
-                        ItemStack senderStack = sender.getItem(i);
 
-                        if (!senderStack.isEmpty() && senderStack.is(stackInHand.getItem())) {
-                            int countBefore = stackInHand.getCount();
-                            InteractionResult result = stackInHand.useOn(new UseOnContext(player, hand, hitResult));
+                    if (checkPos.closerThan(player.blockPosition(), radius)) {
+                        for (int i = 0; i < sender.getContainerSize(); i++) {
+                            ItemStack senderStack = sender.getItem(i);
 
-                            if (result.consumesAction()) {
-                                senderStack.shrink(1);
-                                sender.setChanged();
+                            if (!senderStack.isEmpty() && senderStack.is(stackInHand.getItem())) {
+                                int countBefore = stackInHand.getCount();
+                                InteractionResult result = stackInHand.useOn(new UseOnContext(player, hand, hitResult));
 
-                                stackInHand.setCount(countBefore);
+                                if (result.consumesAction()) {
+                                    senderStack.shrink(1);
+                                    sender.setChanged();
 
-                                if (player instanceof ServerPlayer serverPlayer) {
-                                    serverPlayer.containerMenu.broadcastChanges();
-                                    // -2 = inventory constant, 0 = container ID
-                                    serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
-                                            0,
-                                            serverPlayer.containerMenu.getStateId(),
-                                            serverPlayer.getInventory().selected + 36,
-                                            stackInHand
-                                    ));
+                                    stackInHand.setCount(countBefore);
+
+                                    if (player instanceof ServerPlayer serverPlayer) {
+                                        serverPlayer.containerMenu.broadcastChanges();
+                                        // -2 = inventory constant, 0 = container ID
+                                        serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
+                                                0,
+                                                serverPlayer.containerMenu.getStateId(),
+                                                serverPlayer.getInventory().selected + 36,
+                                                stackInHand
+                                        ));
+                                    }
+
+                                    return InteractionResult.SUCCESS;
                                 }
-
-                                return InteractionResult.SUCCESS;
                             }
                         }
                     }
