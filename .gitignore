@@ -11,4 +11,3 @@ build/
 /documentation
 .DS_Store
 src/.DS_Store
-/gradle/wrapper
