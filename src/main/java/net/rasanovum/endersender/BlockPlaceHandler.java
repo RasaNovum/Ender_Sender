@@ -1,10 +1,14 @@
 package net.rasanovum.endersender;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.rasanovum.endersender.block.entity.EnderSenderBlockEntity;
@@ -34,10 +38,21 @@ public class BlockPlaceHandler {
                     if (checkPos.closerThan(player.blockPosition(), radius)) {
                         for (int i = 0; i < sender.getContainerSize(); i++) {
                             ItemStack senderStack = sender.getItem(i);
+                            Item itemToTrack = stackInHand.getItem(); // to avoid the "1 item in hand" issue of tracking "Air" intead of the block.
 
                             if (!senderStack.isEmpty() && senderStack.is(stackInHand.getItem())) {
                                 int countBefore = stackInHand.getCount();
                                 InteractionResult result = stackInHand.useOn(new UseOnContext(player, hand, hitResult));
+
+                                int totalRemaining = sender.countTotalItems(itemToTrack);
+                                Component itemName = itemToTrack.getDescription();
+                                if (totalRemaining == 10) {
+                                    player.displayClientMessage(
+                                            Component.translatable("message.ender_sender.ender_sender_stock_low_warning", itemName, totalRemaining)
+                                                    .withStyle(ChatFormatting.RED),
+                                            true
+                                    );
+                                }
 
                                 if (result.consumesAction()) {
                                     senderStack.shrink(1);

@@ -5,5 +5,6 @@
   "gamerule.enderSenderRange.description": "The radius (in blocks) the Ender Sender can transfer items from, up to a maximum value of 64",
   "gui.ender_sender.ender_sender_gui.label_ender_sender": "Ender Sender",
   "gamerule.doEnderSenderEffects": "Ender Sender Effects",
-  "gamerule.doEnderSenderEffects.description": "Enables or disables linking particles and sound effects in the Ender Sender mod."
+  "gamerule.doEnderSenderEffects.description": "Enables or disables linking particles and sound effects in the Ender Sender mod.",
+  "message.ender_sender.ender_sender_stock_low_warning": "Sender low on %s: %d"
 }

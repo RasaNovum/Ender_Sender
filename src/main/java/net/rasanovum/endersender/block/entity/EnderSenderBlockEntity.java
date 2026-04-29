@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -72,6 +73,16 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
                 return false;
             });
         }
+    }
+
+    public int countTotalItems(Item item) {
+        int count = 0;
+        for (ItemStack stack : this.items) {
+            if (stack.is(item)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 
     private static void spawnConnectionLine(ServerLevel world, BlockPos blockPos, Player player) {
