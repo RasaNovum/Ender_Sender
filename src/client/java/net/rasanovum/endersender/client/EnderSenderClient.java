@@ -1,6 +1,7 @@
 package net.rasanovum.endersender.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
@@ -16,6 +17,7 @@ public class EnderSenderClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		MenuScreens.register(EnderSender.ENDER_SENDER_SCREEN_HANDLER, EnderSenderScreen::new);
+		BlockEntityRendererRegistry.register(EnderSender.ENDER_SENDER_BE, EnderSenderBlockEntityRenderer::new);
 		ClientPlayNetworking.registerGlobalReceiver(SenderSyncPacket.ID, (client, handler, buf, responseSender) -> {
 			BlockPos pos = buf.readBlockPos();
 			int radius = buf.readInt();
@@ -28,9 +30,13 @@ public class EnderSenderClient implements ClientModInitializer {
 				if (item != null) {
 					stockMap.put(item, count);
 				}
-
-				client.execute(() -> ClientStockCache.update(pos, stockMap, radius));
 			}
+
+			client.execute(() -> ClientStockCache.update(pos, stockMap, radius));
+		});
+		ClientPlayNetworking.registerGlobalReceiver(SenderSyncPacket.REMOVE_ID, (client, handler, buf, responseSender) -> {
+			BlockPos pos = buf.readBlockPos();
+			client.execute(() -> ClientStockCache.remove(pos));
 		});
 	}
 }

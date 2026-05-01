@@ -1,5 +1,14 @@
 {
-  "parent": "ender_sender:block/ender_sender",
+  "parent": "ender_sender:custom/ender_workbench",
+  "textures": {
+    "all": "ender_sender:block/ender_siphon_bottom",
+    "particle": "ender_sender:block/ender_siphon_bottom",
+    "0": "ender_sender:block/ender_siphon_bottom",
+    "1": "ender_sender:block/ender_siphon_eye",
+    "2": "ender_sender:block/ender_siphon_side",
+    "3": "ender_sender:block/ender_siphon_top",
+    "missing": "ender_sender:block/ender_siphon_eye"
+  },
   "display": {
     "thirdperson": {
       "rotation": [

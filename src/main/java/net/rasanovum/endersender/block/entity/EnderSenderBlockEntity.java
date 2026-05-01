@@ -27,9 +27,20 @@ import java.util.UUID;
 
 public class EnderSenderBlockEntity extends BlockEntity implements ImplementedInventory {
     private final NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
+    public final EyeAnimation eyeAnimation = new EyeAnimation();
 
     public EnderSenderBlockEntity(BlockPos pos, BlockState state) {
         super(EnderSender.ENDER_SENDER_BE, pos, state);
+    }
+
+    public static class EyeAnimation {
+        public float yaw;
+        public float prevYaw;
+        public float pitch;
+        public float prevPitch;
+        public float idleYaw;
+        public long nextIdleTick;
+        public long lastTick = Long.MIN_VALUE;
     }
 
     private final Set<UUID> playersInRange = new HashSet<>();

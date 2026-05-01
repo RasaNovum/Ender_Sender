@@ -17,7 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SenderSyncPacket {
-    public static final ResourceLocation ID = new ResourceLocation("ender_sender", "sync_stock");
+    public static final ResourceLocation ID = new ResourceLocation(EnderSender.MOD_ID, "sync_stock");
+    public static final ResourceLocation REMOVE_ID = new ResourceLocation(EnderSender.MOD_ID, "remove");
 
     public static void send(EnderSenderBlockEntity sender) {
         if (sender.getLevel() != null && !sender.getLevel().isClientSide) {
@@ -44,6 +45,15 @@ public class SenderSyncPacket {
             for (ServerPlayer player : PlayerLookup.around((ServerLevel) sender.getLevel(), sender.getBlockPos(), 64)) {
                 ServerPlayNetworking.send(player, ID, buf);
             }
+        }
+    }
+
+    public static void remove(ServerLevel world, EnderSenderBlockEntity sender) {
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(sender.getBlockPos());
+
+        for (ServerPlayer player : PlayerLookup.around(world, sender.getBlockPos(), 64)) {
+            ServerPlayNetworking.send(player, REMOVE_ID, buf);
         }
     }
 }

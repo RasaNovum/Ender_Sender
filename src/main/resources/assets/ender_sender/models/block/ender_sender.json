@@ -1,5 +1,5 @@
 {
-  "parent": "ender_sender:custom/ender_workbench",
+  "parent": "ender_sender:custom/ender_workbench_base",
   "textures": {
     "all": "ender_sender:block/ender_siphon_bottom",
     "particle": "ender_sender:block/ender_siphon_bottom",

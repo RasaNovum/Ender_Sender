@@ -5,13 +5,22 @@ import net.minecraft.world.item.Item;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ClientStockCache {
     private static final Map<BlockPos, SenderData> SENDER_DATA = new HashMap<>();
     public record SenderData(Map<Item, Integer> inventory, int radius) {}
     public static void update(BlockPos pos, Map<Item, Integer> inventory, int radius) {
-        SENDER_DATA.remove(pos);
         SENDER_DATA.put(pos, new SenderData(inventory, radius));
+    }
+
+    public static void remove(BlockPos pos) {
+        SENDER_DATA.remove(pos);
+    }
+
+    public static Optional<Integer> getRadius(BlockPos pos) {
+        SenderData data = SENDER_DATA.get(pos);
+        return data == null ? Optional.empty() : Optional.of(Math.max(1, Math.min(data.radius(), 64)));
     }
 
     public static int getStockForNearbySender(BlockPos playerPos, Item item) {
