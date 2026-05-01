@@ -27,13 +27,14 @@ public abstract class ItemCountRenderMixin {
         this.isEnderSenderCount = false;
         if (client.player == null || stack.isEmpty()) return originalText;
 
-        if (client.screen == null && stack == client.player.getMainHandItem()) {
+        boolean isHeldStack = stack == client.player.getMainHandItem() || stack == client.player.getOffhandItem();
+        if (client.screen == null && isHeldStack) {
 
             int senderStock = ClientStockCache.getStockForNearbySender(client.player.blockPosition(), stack.getItem());
             if (senderStock > 0) {
                 int totalDisplayed = senderStock + stack.getCount();
                 this.isEnderSenderCount = true;
-                return totalDisplayed > 64 ? "+64" : String.valueOf(totalDisplayed);
+                return totalDisplayed > 64 ? "64+" : String.valueOf(totalDisplayed); // TODO: Figure out how we want to word this
             }
         }
         return originalText;
@@ -45,7 +46,7 @@ public abstract class ItemCountRenderMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;IIIZ)I")
     )
     private int enderSender$changeColorOnDraw(GuiGraphics instance, Font font, String text, int x, int y, int color, boolean shadow) {
-        int finalColor = this.isEnderSenderCount ? 0xFFAA55FF : color;
+        int finalColor = this.isEnderSenderCount ? 0xDAB4FF : color;
 
         return instance.drawString(font, text, x, y, finalColor, shadow);
     }
