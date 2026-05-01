@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.rasanovum.endersender.EnderSender;
 import net.rasanovum.endersender.block.entity.EnderSenderBlockEntity;
 
 import java.util.HashMap;
@@ -22,6 +23,9 @@ public class SenderSyncPacket {
         if (sender.getLevel() != null && !sender.getLevel().isClientSide) {
             FriendlyByteBuf buf = PacketByteBufs.create();
             buf.writeBlockPos(sender.getBlockPos());
+
+            int radius = sender.getLevel().getGameRules().getInt(EnderSender.ENDER_SENDER_RADIUS);
+            buf.writeInt(radius);
 
             Map<Item, Integer> totals = new HashMap<>();
             for (int i = 0; i < sender.getContainerSize(); i++) {

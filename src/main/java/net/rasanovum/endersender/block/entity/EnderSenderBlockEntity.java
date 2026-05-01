@@ -37,11 +37,12 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
     public static void tick(Level world, BlockPos pos, BlockState state, EnderSenderBlockEntity be) {
         if (world.isClientSide || world.getGameTime() % 5 != 0) return;
 
-        int rawRadius = world.getGameRules().getInt(EnderSender.ENDER_SENDER_RADIUS);
-        int radius = Math.max(1, Math.min(rawRadius, 64)); // set max to 64
+
+        int radius = world.getGameRules().getInt(EnderSender.ENDER_SENDER_RADIUS);
+        int correctedRadius = Math.max(1, Math.min(radius, 64)); // set max to 64
 
         boolean playEffects = world.getGameRules().getBoolean(EnderSender.DO_ENDER_SENDER_EFFECTS);
-        AABB area = new AABB(pos).inflate(radius);
+        AABB area = new AABB(pos).inflate(correctedRadius);
         List<Player> currentPlayers = world.getEntitiesOfClass(Player.class, area);
         List<UUID> currentUuids = currentPlayers.stream().map(Entity::getUUID).toList();
 

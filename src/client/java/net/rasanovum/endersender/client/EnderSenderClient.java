@@ -18,6 +18,7 @@ public class EnderSenderClient implements ClientModInitializer {
 		MenuScreens.register(EnderSender.ENDER_SENDER_SCREEN_HANDLER, EnderSenderScreen::new);
 		ClientPlayNetworking.registerGlobalReceiver(SenderSyncPacket.ID, (client, handler, buf, responseSender) -> {
 			BlockPos pos = buf.readBlockPos();
+			int radius = buf.readInt();
 			int mapSize = buf.readInt();
 			Map<Item, Integer> stockMap = new HashMap<>();
 
@@ -28,7 +29,7 @@ public class EnderSenderClient implements ClientModInitializer {
 					stockMap.put(item, count);
 				}
 
-				client.execute(() -> ClientStockCache.update(pos, stockMap));
+				client.execute(() -> ClientStockCache.update(pos, stockMap, radius));
 			}
 		});
 	}
