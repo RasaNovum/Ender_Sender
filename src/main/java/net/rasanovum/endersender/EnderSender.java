@@ -31,9 +31,6 @@ public class EnderSender implements ModInitializer {
 	public static final GameRules.Key<GameRules.IntegerValue> ENDER_SENDER_RADIUS =
 			GameRuleRegistry.register("enderSenderRange", GameRules.Category.MISC, GameRuleFactory.createIntRule(32));
 
-	public static final GameRules.Key<GameRules.BooleanValue> SPAWN_ENDER_CHESTS =
-			GameRuleRegistry.register("doEnderChestSpawning", GameRules.Category.SPAWNING, GameRuleFactory.createBooleanRule(false));
-
 	public static final Block ENDER_SENDER_BLOCK = Registry.register(
 			BuiltInRegistries.BLOCK,
 			new ResourceLocation(MOD_ID, "ender_sender"),

@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.rasanovum.endersender.EnderSender;
+import net.rasanovum.endersender.network.SenderSyncPacket;
 import net.rasanovum.endersender.util.ImplementedInventory;
 
 import java.util.HashSet;
@@ -54,6 +55,7 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
                         // particle line connecting sender and player
                         spawnConnectionLine(serverWorld, pos, player);
                     }
+                    SenderSyncPacket.send(be);
                     be.playersInRange.add(player.getUUID());
                 }
             }
@@ -72,6 +74,13 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
                 }
                 return false;
             });
+        }
+    }
+
+    public void markDirtyAndSync() {
+        this.setChanged();
+        if (!this.level.isClientSide) {
+            SenderSyncPacket.send(this);
         }
     }
 
@@ -125,6 +134,7 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
         super.setChanged();
         if (this.level != null) {
             this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+            SenderSyncPacket.send(this);
         }
     }
 

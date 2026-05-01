@@ -1,12 +1,9 @@
 package net.rasanovum.endersender;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -16,6 +13,7 @@ import net.rasanovum.endersender.block.entity.EnderSenderBlockEntity;
 public class BlockPlaceHandler {
     public static void register() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
+            if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) return InteractionResult.PASS;
             if (world.isClientSide || player.getAbilities().instabuild) return InteractionResult.PASS;
 
             if (!player.isCrouching() && world.getBlockState(hitResult.getBlockPos()).is(EnderSender.ENDER_SENDER_BLOCK)) {
@@ -38,39 +36,26 @@ public class BlockPlaceHandler {
                     if (checkPos.closerThan(player.blockPosition(), radius)) {
                         for (int i = 0; i < sender.getContainerSize(); i++) {
                             ItemStack senderStack = sender.getItem(i);
-                            Item itemToTrack = stackInHand.getItem(); // to avoid the "1 item in hand" issue of tracking "Air" intead of the block.
+                            Item itemToTrack = stackInHand.getItem(); // to avoid the "1 item in hand" issue of tracking "Air" instead of the block.
 
-                            if (!senderStack.isEmpty() && senderStack.is(stackInHand.getItem())) {
+                            if (!senderStack.isEmpty() && senderStack.is(itemToTrack)) {
                                 int countBefore = stackInHand.getCount();
                                 InteractionResult result = stackInHand.useOn(new UseOnContext(player, hand, hitResult));
 
-                                int totalRemaining = sender.countTotalItems(itemToTrack);
-                                Component itemName = itemToTrack.getDescription();
-                                if (totalRemaining == 10) {
-                                    player.displayClientMessage(
-                                            Component.translatable("message.ender_sender.ender_sender_stock_low_warning", itemName, totalRemaining)
-                                                    .withStyle(ChatFormatting.RED),
-                                            true
-                                    );
-                                }
-
                                 if (result.consumesAction()) {
                                     senderStack.shrink(1);
-                                    sender.setChanged();
-
+                                    sender.markDirtyAndSync();
                                     stackInHand.setCount(countBefore);
 
                                     if (player instanceof ServerPlayer serverPlayer) {
-                                        serverPlayer.containerMenu.broadcastChanges();
-                                        // -2 = inventory constant, 0 = container ID
                                         serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
+                                                -2,
                                                 0,
-                                                serverPlayer.containerMenu.getStateId(),
-                                                serverPlayer.getInventory().selected + 36,
+                                                serverPlayer.getInventory().selected,
                                                 stackInHand
                                         ));
+                                        serverPlayer.containerMenu.broadcastChanges();
                                     }
-
                                     return InteractionResult.SUCCESS;
                                 }
                             }

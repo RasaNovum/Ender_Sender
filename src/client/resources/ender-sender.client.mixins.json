@@ -3,7 +3,7 @@
 	"package": "net.rasanovum.endersender.client.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"client": [
-		"ExampleClientMixin"
+		"ItemCountRenderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
