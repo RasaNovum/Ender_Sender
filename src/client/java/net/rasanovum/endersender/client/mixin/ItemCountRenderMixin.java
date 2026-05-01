@@ -27,7 +27,7 @@ public abstract class ItemCountRenderMixin {
         this.isEnderSenderCount = false;
         if (client.player == null || stack.isEmpty()) return originalText;
 
-        boolean isHeldStack = stack == client.player.getMainHandItem() || stack == client.player.getOffhandItem();
+        boolean isHeldStack = stack == client.player.getMainHandItem(); // || stack == client.player.getOffhandItem();
         if (client.screen == null && isHeldStack) {
 
             int senderStock = ClientStockCache.getStockForNearbySender(client.player.blockPosition(), stack.getItem());
