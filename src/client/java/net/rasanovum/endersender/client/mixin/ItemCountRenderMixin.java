@@ -33,7 +33,7 @@ public abstract class ItemCountRenderMixin {
             if (senderStock > 0) {
                 int totalDisplayed = senderStock + stack.getCount();
                 this.isEnderSenderCount = true;
-                return totalDisplayed > 64 ? "64+" : String.valueOf(totalDisplayed);
+                return totalDisplayed > 64 ? "+64" : String.valueOf(totalDisplayed);
             }
         }
         return originalText;

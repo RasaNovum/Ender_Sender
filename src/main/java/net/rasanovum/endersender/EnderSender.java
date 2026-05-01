@@ -3,6 +3,7 @@ package net.rasanovum.endersender;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -10,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Block;
@@ -62,6 +64,9 @@ public class EnderSender implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		BlockPlaceHandler.register();
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content -> {
+			content.accept(ENDER_SENDER_ITEM);
+		});
 		LOGGER.info("Hello Fabric world!");
 	}
 }
