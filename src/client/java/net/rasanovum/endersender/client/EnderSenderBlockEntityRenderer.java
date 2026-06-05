@@ -66,7 +66,10 @@ public class EnderSenderBlockEntityRenderer implements BlockEntityRenderer<Ender
         if (player == null) return idleTarget(be, tick);
 
         BlockPos pos = be.getBlockPos();
-        Optional<Integer> radius = ClientStockCache.getRadius(pos);
+        Level level = be.getLevel();
+        if (level == null) return idleTarget(be, tick);
+
+        Optional<Integer> radius = ClientStockCache.getRadius(level.dimension().location(), pos);
         if (radius.isEmpty()) return idleTarget(be, tick);
 
         double dx = player.getX() - (pos.getX() + 0.5D);

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -20,14 +21,17 @@ import net.rasanovum.endersender.EnderSender;
 import net.rasanovum.endersender.network.SenderSyncPacket;
 import net.rasanovum.endersender.util.ImplementedInventory;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class EnderSenderBlockEntity extends BlockEntity implements ImplementedInventory {
     private final NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
     public final EyeAnimation eyeAnimation = new EyeAnimation();
+    private static final Map<ResourceKey<Level>, Set<BlockPos>> LOADED_SENDERS = new HashMap<>();
 
     public EnderSenderBlockEntity(BlockPos pos, BlockState state) {
         super(EnderSender.ENDER_SENDER_BE, pos, state);
@@ -48,6 +52,7 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
     public static void tick(Level world, BlockPos pos, BlockState state, EnderSenderBlockEntity be) {
         if (world.isClientSide || world.getGameTime() % 5 != 0) return;
 
+        registerLoadedSender(world, pos);
 
         int radius = world.getGameRules().getInt(EnderSender.ENDER_SENDER_RADIUS);
         int correctedRadius = Math.max(1, Math.min(radius, 64)); // set max to 64
@@ -58,6 +63,10 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
         List<UUID> currentUuids = currentPlayers.stream().map(Entity::getUUID).toList();
 
         if (world instanceof ServerLevel serverWorld) {
+            if (!currentPlayers.isEmpty() && world.getGameTime() % 40 == 0) {
+                SenderSyncPacket.send(be);
+            }
+
             // player enters
             for (Player player : currentPlayers) {
                 if (!be.playersInRange.contains(player.getUUID())) {
@@ -91,9 +100,29 @@ public class EnderSenderBlockEntity extends BlockEntity implements ImplementedIn
 
     public void markDirtyAndSync() {
         this.setChanged();
-        if (!this.level.isClientSide) {
-            SenderSyncPacket.send(this);
+    }
+
+    public static Set<BlockPos> getLoadedSenderPositions(ServerLevel world) {
+        Set<BlockPos> positions = LOADED_SENDERS.get(world.dimension());
+        return positions == null ? Set.of() : new HashSet<>(positions);
+    }
+
+    public static void unregisterLoadedSender(Level world, BlockPos pos) {
+        Set<BlockPos> positions = LOADED_SENDERS.get(world.dimension());
+        if (positions != null) {
+            positions.remove(pos);
+            if (positions.isEmpty()) {
+                LOADED_SENDERS.remove(world.dimension());
+            }
         }
+    }
+
+    public static void clearLoadedSenders() {
+        LOADED_SENDERS.clear();
+    }
+
+    private static void registerLoadedSender(Level world, BlockPos pos) {
+        LOADED_SENDERS.computeIfAbsent(world.dimension(), dimension -> new HashSet<>()).add(pos.immutable());
     }
 
     public int countTotalItems(Item item) {

@@ -73,6 +73,7 @@ public class EnderSenderBlock extends BaseEntityBlock {
             if (be instanceof EnderSenderBlockEntity sender) {
                 if (world instanceof ServerLevel serverWorld) {
                     SenderSyncPacket.remove(serverWorld, sender);
+                    EnderSenderBlockEntity.unregisterLoadedSender(serverWorld, pos);
                 }
                 Containers.dropContents(world, pos, sender);
                 world.updateNeighbourForOutputSignal(pos, this);

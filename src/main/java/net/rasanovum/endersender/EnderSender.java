@@ -1,6 +1,7 @@
 package net.rasanovum.endersender;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -64,6 +65,7 @@ public class EnderSender implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		BlockPlaceHandler.register();
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnderSenderBlockEntity.clearLoadedSenders());
 		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content -> {
 			content.accept(ENDER_SENDER_ITEM);
 		});

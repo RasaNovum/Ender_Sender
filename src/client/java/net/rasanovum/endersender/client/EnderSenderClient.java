@@ -1,11 +1,13 @@
 package net.rasanovum.endersender.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.rasanovum.endersender.EnderSender;
 import net.rasanovum.endersender.network.SenderSyncPacket;
@@ -18,7 +20,10 @@ public class EnderSenderClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		MenuScreens.register(EnderSender.ENDER_SENDER_SCREEN_HANDLER, EnderSenderScreen::new);
 		BlockEntityRendererRegistry.register(EnderSender.ENDER_SENDER_BE, EnderSenderBlockEntityRenderer::new);
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> ClientStockCache.clear());
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientStockCache.clear());
 		ClientPlayNetworking.registerGlobalReceiver(SenderSyncPacket.ID, (client, handler, buf, responseSender) -> {
+			ResourceLocation dimension = buf.readResourceLocation();
 			BlockPos pos = buf.readBlockPos();
 			int radius = buf.readInt();
 			int mapSize = buf.readInt();
@@ -32,11 +37,12 @@ public class EnderSenderClient implements ClientModInitializer {
 				}
 			}
 
-			client.execute(() -> ClientStockCache.update(pos, stockMap, radius));
+			client.execute(() -> ClientStockCache.update(dimension, pos, stockMap, radius));
 		});
 		ClientPlayNetworking.registerGlobalReceiver(SenderSyncPacket.REMOVE_ID, (client, handler, buf, responseSender) -> {
+			ResourceLocation dimension = buf.readResourceLocation();
 			BlockPos pos = buf.readBlockPos();
-			client.execute(() -> ClientStockCache.remove(pos));
+			client.execute(() -> ClientStockCache.remove(dimension, pos));
 		});
 	}
 }

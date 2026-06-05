@@ -25,12 +25,12 @@ public abstract class ItemCountRenderMixin {
     private String enderSender$overrideRenderText(String originalText, Font font, ItemStack stack, int x, int y) {
         Minecraft client = Minecraft.getInstance();
         this.isEnderSenderCount = false;
-        if (client.player == null || stack.isEmpty()) return originalText;
+        if (client.player == null || client.level == null || stack.isEmpty()) return originalText;
 
         boolean isHeldStack = stack == client.player.getMainHandItem(); // || stack == client.player.getOffhandItem();
         if (client.screen == null && isHeldStack) {
 
-            int senderStock = ClientStockCache.getStockForNearbySender(client.player.blockPosition(), stack.getItem());
+            int senderStock = ClientStockCache.getStockForNearbySender(client.level.dimension().location(), client.player.blockPosition(), stack.getItem());
             if (senderStock > 0) {
                 int totalDisplayed = senderStock + stack.getCount();
                 this.isEnderSenderCount = true;

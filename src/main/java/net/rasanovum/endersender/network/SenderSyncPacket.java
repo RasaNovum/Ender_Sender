@@ -23,6 +23,7 @@ public class SenderSyncPacket {
     public static void send(EnderSenderBlockEntity sender) {
         if (sender.getLevel() != null && !sender.getLevel().isClientSide) {
             FriendlyByteBuf buf = PacketByteBufs.create();
+            buf.writeResourceLocation(sender.getLevel().dimension().location());
             buf.writeBlockPos(sender.getBlockPos());
 
             int radius = sender.getLevel().getGameRules().getInt(EnderSender.ENDER_SENDER_RADIUS);
@@ -50,6 +51,7 @@ public class SenderSyncPacket {
 
     public static void remove(ServerLevel world, EnderSenderBlockEntity sender) {
         FriendlyByteBuf buf = PacketByteBufs.create();
+        buf.writeResourceLocation(world.dimension().location());
         buf.writeBlockPos(sender.getBlockPos());
 
         for (ServerPlayer player : PlayerLookup.around(world, sender.getBlockPos(), 64)) {

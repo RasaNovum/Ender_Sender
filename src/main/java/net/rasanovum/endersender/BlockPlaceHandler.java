@@ -3,6 +3,7 @@ package net.rasanovum.endersender;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -27,13 +28,11 @@ public class BlockPlaceHandler {
             ItemStack stackInHand = player.getItemInHand(hand);
             if (stackInHand.isEmpty()) return InteractionResult.PASS;
 
-            for (BlockPos checkPos : BlockPos.betweenClosed(
-                    playerPos.offset(-radius, -radius, -radius),
-                    playerPos.offset(radius, radius, radius))) {
+            ServerLevel serverLevel = (ServerLevel) world;
+            for (BlockPos checkPos : EnderSenderBlockEntity.getLoadedSenderPositions(serverLevel)) {
 
                 if (world.getBlockEntity(checkPos) instanceof EnderSenderBlockEntity sender) {
-
-                    if (checkPos.closerThan(player.blockPosition(), radius)) {
+                    if (checkPos.distSqr(playerPos) <= radius * radius) {
                         for (int i = 0; i < sender.getContainerSize(); i++) {
                             ItemStack senderStack = sender.getItem(i);
                             Item itemToTrack = stackInHand.getItem(); // to avoid the "1 item in hand" issue of tracking "Air" instead of the block.
@@ -61,6 +60,8 @@ public class BlockPlaceHandler {
                             }
                         }
                     }
+                } else {
+                    EnderSenderBlockEntity.unregisterLoadedSender(serverLevel, checkPos);
                 }
             }
             return InteractionResult.PASS;
