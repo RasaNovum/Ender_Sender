@@ -8,10 +8,10 @@
 		"Rasa Novum: originally made by xameryn, remade in Fabric by spekky"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://www.rasanovum.ca/",
+		"sources": "https://github.com/RasaNovum/Ender_Sender"
 	},
-	"license": "CC0-1.0",
+	"license": "RSL-1.0",
 	"icon": "assets/ender_sender/icon.png",
 	"environment": "*",
 	"entrypoints": {
