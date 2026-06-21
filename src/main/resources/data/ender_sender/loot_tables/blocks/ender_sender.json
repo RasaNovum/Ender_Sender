@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "endersender:ender_sender"
+          "name": "ender_sender:ender_sender"
         }
       ],
       "conditions": [

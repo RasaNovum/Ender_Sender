@@ -40,7 +40,8 @@ public class EnderSender implements ModInitializer {
 			new EnderSenderBlock(BlockBehaviour.Properties.of()
 					.strength(3.0f)
 					.mapColor(MapColor.COLOR_PURPLE)
-					.noOcclusion())
+					.noOcclusion()
+					.requiresCorrectToolForDrops())
 	);
 
 	public static final BlockItem ENDER_SENDER_ITEM = Registry.register(
