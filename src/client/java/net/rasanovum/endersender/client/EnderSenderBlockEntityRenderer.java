@@ -8,13 +8,14 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
-import net.rasanovum.endersender.EnderSender;
 import net.rasanovum.endersender.block.entity.EnderSenderBlockEntity;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -22,7 +23,7 @@ import org.joml.Matrix4f;
 import java.util.Optional;
 
 public class EnderSenderBlockEntityRenderer implements BlockEntityRenderer<EnderSenderBlockEntity> {
-    private static final ResourceLocation EYE_TEXTURE = new ResourceLocation(EnderSender.MOD_ID, "textures/block/ender_siphon_eye.png");
+    private static final ResourceLocation EYE_TEXTURE = InventoryMenu.BLOCK_ATLAS;
     private static final int MIN_IDLE_LOOK_TICKS = 20;
     private static final int RANDOM_IDLE_LOOK_TICKS = 50;
 
@@ -43,8 +44,12 @@ public class EnderSenderBlockEntityRenderer implements BlockEntityRenderer<Ender
         matrices.mulPose(Axis.YP.rotationDegrees(-yaw));
         matrices.mulPose(Axis.XP.rotationDegrees(pitch));
 
+        TextureAtlasSprite sprite = Minecraft.getInstance()
+                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                .apply(new ResourceLocation("minecraft", "block/end_portal_frame_eye"));
+
         VertexConsumer vertices = buffers.getBuffer(RenderType.entityCutout(EYE_TEXTURE));
-        drawEye(matrices, vertices, light, overlay);
+        drawEye(matrices, vertices, light, overlay, sprite);
         matrices.popPose();
     }
 
@@ -95,7 +100,7 @@ public class EnderSenderBlockEntityRenderer implements BlockEntityRenderer<Ender
 
     private record EyeTarget(float yaw, float pitch) {}
 
-    private static void drawEye(PoseStack matrices, VertexConsumer vertices, int light, int overlay) {
+    private static void drawEye(PoseStack matrices, VertexConsumer vertices, int light, int overlay, TextureAtlasSprite sprite) {
         PoseStack.Pose pose = matrices.last();
         Matrix4f position = pose.pose();
         Matrix3f normal = pose.normal();
@@ -106,31 +111,31 @@ public class EnderSenderBlockEntityRenderer implements BlockEntityRenderer<Ender
         float minZ = -4.0F / 16.0F;
         float maxZ = 4.0F / 16.0F;
 
-        quad(vertices, position, normal, minX, minY, minZ, maxX, minY, minZ, maxX, maxY, minZ, minX, maxY, minZ, 0, 12, 8, 8, 0, 0, -1, light, overlay);
-        quad(vertices, position, normal, maxX, minY, maxZ, minX, minY, maxZ, minX, maxY, maxZ, maxX, maxY, maxZ, 0, 12, 8, 8, 0, 0, 1, light, overlay);
-        quad(vertices, position, normal, minX, minY, maxZ, minX, minY, minZ, minX, maxY, minZ, minX, maxY, maxZ, 0, 12, 8, 8, -1, 0, 0, light, overlay);
-        quad(vertices, position, normal, maxX, minY, minZ, maxX, minY, maxZ, maxX, maxY, maxZ, maxX, maxY, minZ, 0, 12, 8, 8, 1, 0, 0, light, overlay);
-        quad(vertices, position, normal, minX, maxY, minZ, maxX, maxY, minZ, maxX, maxY, maxZ, minX, maxY, maxZ, 0, 12, 8, 20, 0, 1, 0, light, overlay);
-        quad(vertices, position, normal, minX, minY, maxZ, maxX, minY, maxZ, maxX, minY, minZ, minX, minY, minZ, 0, 0, 8, 8, 0, -1, 0, light, overlay);
+        quad(vertices, position, normal, minX, minY, minZ, maxX, minY, minZ, maxX, maxY, minZ, minX, maxY, minZ, 4.0F, 4.0F, 12.0F, 7.0F, 0, 0, -1, light, overlay, sprite);
+        quad(vertices, position, normal, maxX, minY, maxZ, minX, minY, maxZ, minX, maxY, maxZ, maxX, maxY, maxZ, 4.0F, 4.0F, 12.0F, 7.0F, 0, 0, 1, light, overlay, sprite);
+        quad(vertices, position, normal, minX, minY, maxZ, minX, minY, minZ, minX, maxY, minZ, minX, maxY, maxZ, 4.0F, 4.0F, 12.0F, 7.0F, -1, 0, 0, light, overlay, sprite);
+        quad(vertices, position, normal, maxX, minY, minZ, maxX, minY, maxZ, maxX, maxY, maxZ, maxX, maxY, minZ, 4.0F, 4.0F, 12.0F, 7.0F, 1, 0, 0, light, overlay, sprite);
+        quad(vertices, position, normal, minX, maxY, minZ, maxX, maxY, minZ, maxX, maxY, maxZ, minX, maxY, maxZ, 4.0F, 4.0F, 12.0F, 12.0F, 0, 1, 0, light, overlay, sprite);
+        quad(vertices, position, normal, minX, minY, maxZ, maxX, minY, maxZ, maxX, minY, minZ, minX, minY, minZ, 4.0F, 4.0F, 12.0F, 12.0F, 0, -1, 0, light, overlay, sprite);
     }
 
     private static void quad(VertexConsumer vertices, Matrix4f position, Matrix3f normal,
                              float x1, float y1, float z1, float x2, float y2, float z2,
                              float x3, float y3, float z3, float x4, float y4, float z4,
                              float u1, float v1, float u2, float v2,
-                             float nx, float ny, float nz, int light, int overlay) {
-        vertex(vertices, position, normal, x4, y4, z4, u1, v1, nx, ny, nz, light, overlay);
-        vertex(vertices, position, normal, x3, y3, z3, u2, v1, nx, ny, nz, light, overlay);
-        vertex(vertices, position, normal, x2, y2, z2, u2, v2, nx, ny, nz, light, overlay);
-        vertex(vertices, position, normal, x1, y1, z1, u1, v2, nx, ny, nz, light, overlay);
+                             float nx, float ny, float nz, int light, int overlay, TextureAtlasSprite sprite) {
+        vertex(vertices, position, normal, x4, y4, z4, u1, v1, nx, ny, nz, light, overlay, sprite);
+        vertex(vertices, position, normal, x3, y3, z3, u2, v1, nx, ny, nz, light, overlay, sprite);
+        vertex(vertices, position, normal, x2, y2, z2, u2, v2, nx, ny, nz, light, overlay, sprite);
+        vertex(vertices, position, normal, x1, y1, z1, u1, v2, nx, ny, nz, light, overlay, sprite);
     }
 
     private static void vertex(VertexConsumer vertices, Matrix4f position, Matrix3f normal,
                                float x, float y, float z, float u, float v,
-                               float nx, float ny, float nz, int light, int overlay) {
+                               float nx, float ny, float nz, int light, int overlay, TextureAtlasSprite sprite) {
         vertices.vertex(position, x, y, z)
                 .color(255, 255, 255, 255)
-                .uv(u / 8, v / 20)
+                .uv(sprite.getU(u), sprite.getV(v))
                 .overlayCoords(overlay)
                 .uv2(light)
                 .normal(normal, nx, ny, nz)
