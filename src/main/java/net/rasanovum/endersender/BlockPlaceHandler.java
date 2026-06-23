@@ -14,8 +14,11 @@ import net.rasanovum.endersender.block.entity.EnderSenderBlockEntity;
 public class BlockPlaceHandler {
     public static void register() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
-            if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) return InteractionResult.PASS;
             if (world.isClientSide || player.getAbilities().instabuild) return InteractionResult.PASS;
+            boolean allowOffhand = world.getGameRules().getBoolean(EnderSender.DO_OFFHAND_SENDING);
+            if (hand == net.minecraft.world.InteractionHand.OFF_HAND && !allowOffhand) {
+                return InteractionResult.PASS;
+            }
 
             if (!player.isCrouching() && world.getBlockState(hitResult.getBlockPos()).is(EnderSender.ENDER_SENDER_BLOCK)) {
                 return InteractionResult.PASS;
@@ -47,10 +50,14 @@ public class BlockPlaceHandler {
                                     stackInHand.setCount(countBefore);
 
                                     if (player instanceof ServerPlayer serverPlayer) {
+                                        int targetSlot = (hand == net.minecraft.world.InteractionHand.MAIN_HAND)
+                                                ? serverPlayer.getInventory().selected
+                                                : 45;
+
                                         serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
                                                 -2,
                                                 0,
-                                                serverPlayer.getInventory().selected,
+                                                targetSlot,
                                                 stackInHand
                                         ));
                                         serverPlayer.containerMenu.broadcastChanges();

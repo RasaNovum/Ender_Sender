@@ -27,7 +27,9 @@ public class SenderSyncPacket {
             buf.writeBlockPos(sender.getBlockPos());
 
             int radius = sender.getLevel().getGameRules().getInt(EnderSender.ENDER_SENDER_RADIUS);
+            boolean allowOffhand = sender.getLevel().getGameRules().getBoolean(EnderSender.DO_OFFHAND_SENDING);
             buf.writeInt(radius);
+            buf.writeBoolean(allowOffhand);
 
             Map<Item, Integer> totals = new HashMap<>();
             for (int i = 0; i < sender.getContainerSize(); i++) {

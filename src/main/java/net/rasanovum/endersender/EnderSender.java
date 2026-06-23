@@ -34,6 +34,8 @@ public class EnderSender implements ModInitializer {
 	public static final GameRules.Key<GameRules.IntegerValue> ENDER_SENDER_RADIUS =
 			GameRuleRegistry.register("enderSenderRange", GameRules.Category.MISC, GameRuleFactory.createIntRule(32));
 
+	public static GameRules.Key<GameRules.BooleanValue> DO_OFFHAND_SENDING;
+
 	public static final Block ENDER_SENDER_BLOCK = Registry.register(
 			BuiltInRegistries.BLOCK,
 			new ResourceLocation(MOD_ID, "ender_sender"),
@@ -65,11 +67,16 @@ public class EnderSender implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		DO_OFFHAND_SENDING = GameRuleRegistry.register(
+				"doOffhandSending",
+				GameRules.Category.PLAYER,
+				GameRuleFactory.createBooleanRule(false)
+		);
 		BlockPlaceHandler.register();
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnderSenderBlockEntity.clearLoadedSenders());
 		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content -> {
 			content.accept(ENDER_SENDER_ITEM);
 		});
-		LOGGER.info("Hello Fabric world!");
+		LOGGER.info("Prepare to meet your ender, sender.");
 	}
 }

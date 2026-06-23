@@ -26,6 +26,7 @@ public class EnderSenderClient implements ClientModInitializer {
 			ResourceLocation dimension = buf.readResourceLocation();
 			BlockPos pos = buf.readBlockPos();
 			int radius = buf.readInt();
+			boolean allowOffhand = buf.readBoolean();
 			int mapSize = buf.readInt();
 			Map<Item, Integer> stockMap = new HashMap<>();
 
@@ -37,7 +38,7 @@ public class EnderSenderClient implements ClientModInitializer {
 				}
 			}
 
-			client.execute(() -> ClientStockCache.update(dimension, pos, stockMap, radius));
+			client.execute(() -> ClientStockCache.update(dimension, pos, stockMap, radius, allowOffhand));
 		});
 		ClientPlayNetworking.registerGlobalReceiver(SenderSyncPacket.REMOVE_ID, (client, handler, buf, responseSender) -> {
 			ResourceLocation dimension = buf.readResourceLocation();

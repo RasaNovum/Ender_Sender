@@ -10,10 +10,15 @@ import java.util.Optional;
 
 public class ClientStockCache {
     private static final Map<SenderKey, SenderData> SENDER_DATA = new HashMap<>();
-    private record SenderKey(ResourceLocation dimension, BlockPos pos) {}
-    public record SenderData(Map<Item, Integer> inventory, int radius) {}
-    public static void update(ResourceLocation dimension, BlockPos pos, Map<Item, Integer> inventory, int radius) {
-        SENDER_DATA.put(new SenderKey(dimension, pos), new SenderData(inventory, radius));
+
+    private record SenderKey(ResourceLocation dimension, BlockPos pos) {
+    }
+
+    public record SenderData(Map<Item, Integer> inventory, int radius, boolean allowOffhand) {
+    }
+
+    public static void update(ResourceLocation dimension, BlockPos pos, Map<Item, Integer> inventory, int radius, boolean allowOffhand) {
+        SENDER_DATA.put(new SenderKey(dimension, pos), new SenderData(inventory, radius, allowOffhand));
     }
 
     public static void remove(ResourceLocation dimension, BlockPos pos) {
@@ -43,5 +48,17 @@ public class ClientStockCache {
             }
         }
         return 0;
+    }
+
+    public static boolean isOffhandAllowedNearby(ResourceLocation dimension, BlockPos playerPos) {
+        for (Map.Entry<SenderKey, SenderData> entry : SENDER_DATA.entrySet()) {
+            if (!entry.getKey().dimension().equals(dimension)) continue;
+            BlockPos senderPos = entry.getKey().pos();
+
+            if (senderPos.closerThan(playerPos, entry.getValue().radius())) {
+                return entry.getValue().allowOffhand();
+            }
+        }
+        return false;
     }
 }

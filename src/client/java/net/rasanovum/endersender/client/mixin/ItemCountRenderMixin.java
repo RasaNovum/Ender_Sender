@@ -3,6 +3,8 @@ package net.rasanovum.endersender.client.mixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.rasanovum.endersender.client.ClientStockCache;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,10 +29,17 @@ public abstract class ItemCountRenderMixin {
         this.isEnderSenderCount = false;
         if (client.player == null || client.level == null || stack.isEmpty()) return originalText;
 
-        boolean isHeldStack = stack == client.player.getMainHandItem(); // || stack == client.player.getOffhandItem();
-        if (client.screen == null && isHeldStack) {
+        boolean isMainHand = stack == client.player.getMainHandItem();
+        boolean isOffHand = stack == client.player.getOffhandItem();
+        if (client.screen == null && (isMainHand || isOffHand)) {
+            BlockPos playerPos = client.player.blockPosition();
+            ResourceLocation dimension = client.level.dimension().location();
 
-            int senderStock = ClientStockCache.getStockForNearbySender(client.level.dimension().location(), client.player.blockPosition(), stack.getItem());
+            if (isOffHand && !ClientStockCache.isOffhandAllowedNearby(dimension, playerPos)) {
+                return originalText;
+            }
+
+            int senderStock = ClientStockCache.getStockForNearbySender(dimension, playerPos, stack.getItem());
             if (senderStock > 0) {
                 int totalDisplayed = senderStock + stack.getCount();
                 this.isEnderSenderCount = true;
